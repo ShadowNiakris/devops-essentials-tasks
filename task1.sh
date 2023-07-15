@@ -1,49 +1,51 @@
-#! /bin/bash
+#!/bin/bash
 
-declare -a arr
+tmpfile="./accounts.tmp"
 
-while IFS="," read -r id location name jobtitle email state
+while IFS="" read line
 do
-	#Update column name: first letter of name/surname uppercase and all other letters lowercase
-	read Name Surname < <(echo $name)
-	Name=${Name,,}
-	Name=${Name^}
-	Surname=${Surname,,}
-	Surname=${Surname^}
+	echo $line | sed 's/'\"\"'/'\"'/g' >> $tmpfile
 
-	#create an email: a first letter of the name + surname lowercase + domain
-	firstletter=${Name:0:1}
-#	email=${firstletter,}${Surname,,}$location'@abc.com'
-	email=${firstletter,}${Surname,,}'@abc.com'
+#	echo $line
+#	echo $line | sed 's/'\"\"'/'\"'/g'e
 
-	#make a new string with the new email
-	newstring="$id,$location,$Name $Surname,$jobtitle,$email,$state"
+done < <( tail -n +2 $1 )
 
-	arr+=("$newstring")
+python3 - <<DOC
+import csv
+updatedstrings=[]
+with open('accounts.tmp','r') as csv_file:
+	reader = csv.reader(csv_file)
 
-done < <(tail -n +2 $1)
+	for row in reader:
+		#print("For row: ",row)
+		name = (row[2].split(" "))[0].casefold().capitalize()
+		surname = (row[2].split(" "))[1].casefold().capitalize()
+		row[2]=name + ' ' + surname
+		row[4]=name.casefold()[0]+surname.casefold()
+		#print ("new row: ", row)
+		updatedstrings.append(row)
 
-n=$((${#arr[@]}-1))
+	csv_file.close()
 
-for i in $(seq 0 $(($n-1)))
-do
-	for j in $(seq $(($i+1)) $n)
-	do
-		IFS="," read id_i location_i name_i jobtitle_i email_i state_i < <(echo "${arr[$i]}")
-		IFS="," read id_j location_j name_j jobtitle_j email_j state_j < <(echo "${arr[$j]}")
 
-		if [[ "$email_i" == "$email_j" ]]; then
-			newstring_i=${arr[$i]/@/$location_i@}
-			newstring_j=${arr[$j]/@/$location_j@}
+n = len(updatedstrings)
+print(n)
 
-			arr[$i]="$newstring_i"
-			arr[$j]="$newstring_j"
+for i in range(0,n-2):
+	for j in range(i+1,n-1):
+		if updatedstrings[i][4] == updatedstrings[j][4]:
+			updatedstrings[i][4] = updatedstrings[i][4]+updatedstrings[i][1]
+			updatedstrings[j][4] = updatedstrings[j][4]+updatedstrings[j][1]
 
-		fi
-	done
-done
+with open('accounts_new.csv','w',newline='') as file:
+	writer = csv.writer(file)
 
-for i in "${arr[@]}"
-do
-	echo $i >> accounts_new.csv
-done
+	for row in updatedstrings:
+		row[4]=row[4]+'@abc.com'
+		writer.writerow(row)
+	file.close()
+
+DOC
+
+rm $tmpfile
