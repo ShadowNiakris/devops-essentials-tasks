@@ -9,14 +9,14 @@ do
 #	echo $line
 #	echo $line | sed 's/'\"\"'/'\"'/g'e
 
-done < <( tail -n +2 $1 )
+done < <( cat $1 ) #tail -n +2 $1 )
 
 python3 - <<DOC
 import csv
 updatedstrings=[]
 with open('accounts.tmp','r') as csv_file:
 	reader = csv.reader(csv_file)
-
+	row1 = next(reader)
 	for row in reader:
 		#print("For row: ",row)
 		name = (row[2].split(" "))[0].casefold().capitalize()
@@ -30,7 +30,6 @@ with open('accounts.tmp','r') as csv_file:
 
 
 n = len(updatedstrings)
-print(n)
 
 for i in range(0,n-2):
 	for j in range(i+1,n-1):
@@ -40,7 +39,7 @@ for i in range(0,n-2):
 
 with open('accounts_new.csv','w',newline='') as file:
 	writer = csv.writer(file)
-
+	writer.writerow(row1)
 	for row in updatedstrings:
 		row[4]=row[4]+'@abc.com'
 		writer.writerow(row)
