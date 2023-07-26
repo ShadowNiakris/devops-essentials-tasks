@@ -26,11 +26,10 @@ with open('accounts.tmp','r') as csv_file:
 
 	csv_file.close()
 
-
 n = len(updatedstrings)
 
-for i in range(0,n-2):
-	for j in range(i+1,n-1):
+for i in range(0,n-1):
+	for j in range(i+1,n):
 		if updatedstrings[i][4] == updatedstrings[j][4]:
 			updatedstrings[i][4] = updatedstrings[i][4]+updatedstrings[i][1]
 			updatedstrings[j][4] = updatedstrings[j][4]+updatedstrings[j][1]
@@ -45,6 +44,12 @@ with open('accounts_new.csv','w',newline='') as file:
 
 DOC
 
-mv ./accounts_new.csv $(dirname $(readlink -f "$1"))
+#echo $(dirname $(readlink -f "$1"))
+#echo $(dirname $(readlink -f $tmpfile))
+
+if  [[ $(dirname $(readlink -f "$1")) != $(dirname $(readlink -f $tmpfile)) ]]; then
+#	echo "paths are not equal"
+	mv ./accounts_new.csv $(dirname $(readlink -f "$1"))
+fi
 
 rm $tmpfile
