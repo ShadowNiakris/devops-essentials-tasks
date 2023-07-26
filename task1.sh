@@ -6,13 +6,11 @@ while IFS="" read line
 do
 	echo $line | sed 's/'\"\"'/'\"'/g' >> $tmpfile
 
-#	echo $line
-#	echo $line | sed 's/'\"\"'/'\"'/g'e
-
-done < <( cat $1 ) #tail -n +2 $1 )
+done < <( cat $1 )
 
 python3 - <<DOC
 import csv
+
 updatedstrings=[]
 with open('accounts.tmp','r') as csv_file:
 	reader = csv.reader(csv_file)
@@ -46,5 +44,7 @@ with open('accounts_new.csv','w',newline='') as file:
 	file.close()
 
 DOC
+
+mv ./accounts_new.csv $(dirname $(readlink -f "$1"))
 
 rm $tmpfile
