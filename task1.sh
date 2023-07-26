@@ -18,8 +18,8 @@ with open('accounts.tmp','r') as csv_file:
 	row1 = next(reader)
 	for row in reader:
 		#print("For row: ",row)
-		name = (row[2].split(" "))[0].casefold().capitalize()
-		surname = (row[2].split(" "))[1].casefold().capitalize()
+		name = (row[2].split(" "))[0].title()
+		surname = (row[2].split(" "))[1].title()
 		row[2]=name + ' ' + surname
 		row[4]=name.casefold()[0]+surname.casefold()
 		#print ("new row: ", row)
