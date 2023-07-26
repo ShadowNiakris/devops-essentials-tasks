@@ -4,7 +4,8 @@ tmpfile="./accounts.tmp"
 
 while IFS="" read line
 do
-	echo $line | sed 's/'\"\"'/'\"'/g' >> $tmpfile
+#	echo $line | sed 's/'\"\"'/'\"'/g' >> $tmpfile
+	echo $line >> $tmpfile
 
 done < <( cat $1 )
 
