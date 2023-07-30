@@ -35,15 +35,27 @@ with open('accounts.tmp','r') as csv_file:
 		updatedstrings.append(row)
 
 	csv_file.close()
+#	print("updatedstrings:",updatedstrings)
 
 n = len(updatedstrings)
-
+print('n=', n)
 #in this section we check if the email has clone and modify both of them
+
 for i in range(0,n-1):
+	#it is a flag to change an updatedstrings[i]
+	flag = False
+
 	for j in range(i+1,n):
+		print('i=',i,'j=',j)
 		if updatedstrings[i][4] == updatedstrings[j][4]:
-			updatedstrings[i][4] = updatedstrings[i][4]+updatedstrings[i][1]
+			flag=True
+			print(updatedstrings[i][4], '==', updatedstrings[j][4])
+			print('updatedstrings[',i,',4',']=',updatedstrings[i][4])
 			updatedstrings[j][4] = updatedstrings[j][4]+updatedstrings[j][1]
+			print('updatedstrings[',j,',4',']=',updatedstrings[j][4])
+	if flag == True:		
+		updatedstrings[i][4] = updatedstrings[i][4]+updatedstrings[i][1]
+	
 
 #write updated string down into new file 
 with open('accounts_new.csv','w',newline='') as file:
