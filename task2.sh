@@ -1,3 +1,77 @@
+
+
 #!/bin/bash
 
-echo "Hello World!"
+#Path to output.txt file should be as argument to the script
+path=$(dirname $1)
+
+#using compound command [[ ]] we get a test's name from a first string
+[[ $(head $1 -n 1) =~ \[\ (.*)\ \] ]]
+
+AssertionName=${BASH_REMATCH[1]}
+echo 'test name:' $AssertionName
+
+#creates a workpiece of our future beautiful json
+json="{ \"testName\": \"$AssertionName\",\
+\"tests\": [],\
+\"summary\":{\"success\":0,\"failed\":0,\"rating\":0,\"duration\":0} }"
+
+echo $json
+
+#variables
+#number_of_tests=0
+number_of_succ_tests=0
+number_of_fail_tests=0
+common_duration=0
+rating=0
+
+#get and processing test lines
+while read line; do
+#	number_of_tests+=1
+
+	#finds test's result with regex
+	[[ $line =~ ^([a-z]*) ]]
+	if [[ ${BASH_REMATCH[1]} == 'not' ]]; then
+		TestStatus='false'
+		(( number_of_fail_tests++ ))
+	else TestStatus='true'
+		(( number_of_succ_tests++ ))
+	fi
+
+	#finds test's name with regex
+	[[ $line =~ [0-9]+\ (.*), ]]
+	TestName=${BASH_REMATCH[1]}
+
+	#finds test's duration woth regex
+	[[ $line =~ ,\ ([0-9]+ms) ]]
+	TestDuration=${BASH_REMATCH[1]}
+
+	[[ $TestDuration =~ ([0-9]+)ms ]]
+	common_duration=$(( $common_duration + ${BASH_REMATCH[1]} ))
+
+
+#	echo "success:" $number_of_succ_tests "failed:" $number_of_fail_tests "duration: " $common_duration
+
+#adds the object of the test into array in the json
+	json=$(echo "$json" | ./jq '. + {tests:(.tests + [{"testname":$ARGS.positional[0],"Duration":$ARGS.positional[1],"result":$ARGS.positional[2] }])}' --args "$TestName" "$TestDuration" "$TestStatus")
+
+done < <( head -n -2 ${1} | tail +3)
+
+#adds final values into json
+tests_count=$(( ($number_of_succ_tests+$number_of_fail_tests) ))
+
+medi_result=$(($number_of_succ_tests*100))
+
+rating=$(echo "scale=2 ; $medi_result / $tests_count" | bc)
+
+#awk -v var1=$number_of_succ_tests -v var2=$tests_count 'BEGIN { print ( var1 / var2 ) }'
+
+echo 'rating:' $rating
+common_duration=$common_duration'ms'
+
+json=$(echo $json | ./jq --arg v $number_of_succ_tests '.summary.success = $v')
+json=$(echo $json | ./jq --arg v $number_of_fail_tests '.summary.failed = $v')
+json=$(echo $json | ./jq --arg v $common_duration '.summary.duration = $v')
+json=$(echo $json | ./jq --arg v $rating '.summary.rating = $v')
+
+echo $json | ./jq "." > $path"/output.json"
