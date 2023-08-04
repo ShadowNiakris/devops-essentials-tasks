@@ -74,4 +74,6 @@ json=$(echo $json | ./jq --arg v $number_of_fail_tests '.summary.failed = $v')
 json=$(echo $json | ./jq --arg v $common_duration '.summary.duration = $v')
 json=$(echo $json | ./jq --arg v $rating '.summary.rating = $v')
 
-echo $json | ./jq "." > output.json
+
+echo "$path"/output.json
+echo $json | ./jq "." > "$path"/output.json
