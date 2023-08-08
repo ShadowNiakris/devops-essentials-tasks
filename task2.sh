@@ -5,18 +5,20 @@
 #Path to output.txt file should be as argument to the script
 path=$(dirname $1)
 
+echo "working on the file "$1
+
 #using compound command [[ ]] we get a test's name from a first string
 [[ $(head $1 -n 1) =~ \[\ (.*)\ \] ]]
 
 AssertionName=${BASH_REMATCH[1]}
-echo 'test name:' $AssertionName
+#echo 'test name:' $AssertionName
 
 #creates a workpiece of our future beautiful json
 json="{ \"testName\": \"$AssertionName\",\
 \"tests\": [],\
 \"summary\":{\"success\":0,\"failed\":0,\"rating\":0,\"duration\":0} }"
 
-echo $json
+#echo $json
 
 #variables
 #number_of_tests=0
@@ -68,7 +70,7 @@ rating=$(echo | awk '{ printf "%.2f\n", v1/v2 }' v1=$medi_result v2=$tests_count
 
 #awk -v var1=$number_of_succ_tests -v var2=$tests_count 'BEGIN { print ( var1 / var2 ) }'
 
-echo 'rating:' $rating
+#echo 'rating:' $rating
 common_duration=$common_duration'ms'
 
 json=$(echo $json | ./jq --arg v $number_of_succ_tests '.summary.success = $v')
@@ -77,5 +79,8 @@ json=$(echo $json | ./jq --arg v $common_duration '.summary.duration = $v')
 json=$(echo $json | ./jq --arg v $rating '.summary.rating = $v')
 
 
-echo "$path"/output.json
+#echo "$path"/output.json
 echo $json | ./jq "." > "$path"/output.json
+if [ -f "$path"/output.json ]; then
+	echo "file "$path"/output.json" created
+fi 
