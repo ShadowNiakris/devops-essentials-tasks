@@ -66,7 +66,7 @@ medi_result=$(($number_of_succ_tests*100))
 
 #bc command caused error
 #rating=$(echo "scale=2 ; $medi_result / $tests_count" | bc)
-#rating=$(echo | awk '{ printf "%.2f\n", v1/v2 }' v1=$medi_result v2=$tests_count)
+rating=$(echo | awk '{ printf "%.2f\n", v1/v2 }' v1=$medi_result v2=$tests_count)
 
 #awk -v var1=$number_of_succ_tests -v var2=$tests_count 'BEGIN { print ( var1 / var2 ) }'
 
