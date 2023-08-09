@@ -57,7 +57,7 @@ while read line; do
 #adds the object of the test into array in the json
 	json=$(echo "$json" | ./jq '. + {tests:(.tests + [{"testname":$ARGS.positional[0],"Duration":$ARGS.positional[1],"result":$ARGS.positional[2] }])}' --args "$TestName" "$TestDuration" "$TestStatus")
 
-done < <( head -n -2 ${1} | tail +3)
+done < <( head -n -2 ${1} | tail -n +3)
 
 #adds final values into json
 tests_count=$(( ($number_of_succ_tests+$number_of_fail_tests) ))
