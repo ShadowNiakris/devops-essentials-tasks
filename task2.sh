@@ -4,14 +4,14 @@
 #Path to output.txt file should be as argument to the script
 path=$(dirname $1)
 
-echo "working on the file $1"
+#echo "working on the file $1"
 
 #using compound command [[ ]] we get a test's name from a first string
 #[[ $(head $1 -n 1) =~ \[\ (.*)\ \] ]]
 
 #AssertionName=${BASH_REMATCH[1]}
 AssertionName=$( head -n 1 output.txt | grep -oe "\[ .* \]" | sed 's/^\[ //' | sed 's/ \]$//')
-echo 'test name:' $AssertionName
+#echo 'test name:' $AssertionName
 
 #creates a workpiece of our future beautiful json
 json="{ \"testName\": \"$AssertionName\",\
@@ -103,6 +103,6 @@ json=$(echo $json | ./jq --arg v $rating '.summary.rating = $v')
 
 #echo "$path"/output.json
 echo $json | ./jq "." > "$path"/output.json
-if [ -f "$path"/output.json ]; then
-	echo "file "$path"/output.json" created
-fi 
+#if [ -f "$path"/output.json ]; then
+#	echo "file "$path"/output.json" created
+#fi 
