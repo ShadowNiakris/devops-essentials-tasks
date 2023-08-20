@@ -1,17 +1,17 @@
 
-
 #!/bin/bash
 
 #Path to output.txt file should be as argument to the script
 path=$(dirname $1)
 
-echo "working on the file "$1
+echo "working on the file $1"
 
 #using compound command [[ ]] we get a test's name from a first string
-[[ $(head $1 -n 1) =~ \[\ (.*)\ \] ]]
+#[[ $(head $1 -n 1) =~ \[\ (.*)\ \] ]]
 
-AssertionName=${BASH_REMATCH[1]}
-#echo 'test name:' $AssertionName
+#AssertionName=${BASH_REMATCH[1]}
+AssertionName=$( head -n 1 output.txt | grep -oe "\[ .* \]" | sed 's/^\[ //' | sed 's/ \]$//')
+echo 'test name:' $AssertionName
 
 #creates a workpiece of our future beautiful json
 json="{ \"testName\": \"$AssertionName\",\
@@ -32,25 +32,47 @@ while read line; do
 #	number_of_tests+=1
 
 	#finds test's result with regex
-	[[ $line =~ ^([a-z]*) ]]
-	if [[ ${BASH_REMATCH[1]} == 'not' ]]; then
+#	[[ $line =~ ^([a-z]*) ]]
+#	if [[ ${BASH_REMATCH[1]} == 'not' ]]; then
+#		TestStatus='false'
+#		(( number_of_fail_tests++ ))
+#	else TestStatus='true'
+#		(( number_of_succ_tests++ ))
+#	fi
+
+	if [ "$(echo "$line" | grep -oe "^ok")" == 'ok' ]; then
+		TestStatus='true'
+		number_of_succ_tests=$(( $number_of_succ_tests+1 ));
+	else
 		TestStatus='false'
-		(( number_of_fail_tests++ ))
-	else TestStatus='true'
-		(( number_of_succ_tests++ ))
+		number_of_fail_tests=$(( $number_of_fail_tests+1 ));
 	fi
 
+#	echo $TestStatus $number_of_succ_tests $number_of_fail_tests
+
 	#finds test's name with regex
-	[[ $line =~ [0-9]+\ (.*), ]]
-	TestName=${BASH_REMATCH[1]}
+#	[[ $line =~ [0-9]+\ (.*), ]]
+#	TestName=${BASH_REMATCH[1]}
+#echo "$line"
+
+	TestName=$(echo "$line" | grep -oe '[0-9]  .*, [0-9]' | sed 's/^[0-9]\ \ //' | sed 's/,\ [0-9]$//')
+#echo "TestName:"$TestName
 
 	#finds test's duration woth regex
-	[[ $line =~ ,\ ([0-9]+ms) ]]
-	TestDuration=${BASH_REMATCH[1]}
+#	[[ $line =~ ,\ ([0-9]+ms) ]]
+#	TestDuration=${BASH_REMATCH[1]}
 
-	[[ $TestDuration =~ ([0-9]+)ms ]]
-	common_duration=$(( $common_duration + ${BASH_REMATCH[1]} ))
 
+	TestDuration=$(echo "$line" | grep -oe '[0-9]*ms' | sed 's/ms$//')
+
+#echo "TestDuration:"$TestDuration
+#echo "$line" | grep -oe '[0-9]*ms$' | sed 's/ms$//'
+
+#	[[ $TestDuration =~ ([0-9]+)ms ]]
+#	common_duration=$(( $common_duration + ${BASH_REMATCH[1]} ))
+
+	common_duration=$(( $common_duration + $TestDuration ))
+#	echo $common_duration
 
 #	echo "success:" $number_of_succ_tests "failed:" $number_of_fail_tests "duration: " $common_duration
 
