@@ -88,6 +88,7 @@ medi_result=$(($number_of_succ_tests*100))
 
 #bc command caused error
 #rating=$(echo "scale=2 ; $medi_result / $tests_count" | bc)
+
 rating=$(echo | awk '{ printf "%.2f\n", v1/v2 }' v1=$medi_result v2=$tests_count)
 
 #awk -v var1=$number_of_succ_tests -v var2=$tests_count 'BEGIN { print ( var1 / var2 ) }'
@@ -95,14 +96,16 @@ rating=$(echo | awk '{ printf "%.2f\n", v1/v2 }' v1=$medi_result v2=$tests_count
 #echo 'rating:' $rating
 common_duration=$common_duration'ms'
 
-json=$(echo $json | ./jq --arg v $number_of_succ_tests '.summary.success = $v')
-json=$(echo $json | ./jq --arg v $number_of_fail_tests '.summary.failed = $v')
+json=$(echo $json | ./jq --arg v $number_of_succ_tests '.summary.success = ($v|tonumber)')
+json=$(echo $json | ./jq --arg v $number_of_fail_tests '.summary.failed = ($v|tonumber)')
 json=$(echo $json | ./jq --arg v $common_duration '.summary.duration = $v')
-json=$(echo $json | ./jq --arg v $rating '.summary.rating = $v')
+json=$(echo $json | ./jq --arg v $rating '.summary.rating = ($v|tonumber)')
 
 
 #echo "$path"/output.json
+#echo $json
+
 echo $json | ./jq "." > "$path"/output.json
-#if [ -f "$path"/output.json ]; then
-#	echo "file "$path"/output.json" created
-#fi 
+if [ -f "$path"/output.json ]; then
+	echo "file "$path"/output.json" created
+fi 
