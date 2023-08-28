@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 #Path to output.txt file should be as argument to the script
