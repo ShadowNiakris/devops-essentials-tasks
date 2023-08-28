@@ -56,3 +56,10 @@ ok  2  expecting command prints some message (the same as above, bats way), 10ms
 
 # Definition of done.
 Developed bash script which automatically convert output.txt to json based on the example above.
+=======
+# DevOps Essentials: Final tasks
+
+This repository has two tasks:
+
+1. Task 1 is located in branch `task1`
+2. Task 2 is located in branch `task2`
