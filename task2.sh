@@ -23,7 +23,7 @@ json="{ \"testName\": \"$AssertionName\",\
 #number_of_tests=0
 number_of_succ_tests=0
 number_of_fail_tests=0
-common_duration=0
+common_duration=$( tail -n 1 output.txt | grep -oe ' [0-9]*ms$' | sed 's/^\ //' | sed 's/ms$//')
 rating=0
 
 #get and processing test lines
@@ -70,7 +70,7 @@ while read line; do
 #	[[ $TestDuration =~ ([0-9]+)ms ]]
 #	common_duration=$(( $common_duration + ${BASH_REMATCH[1]} ))
 
-	common_duration=$(( $common_duration + $TestDuration ))
+#	common_duration=$(( $common_duration + $TestDuration ))
 	echo $common_duration
 
 	echo "success:" $number_of_succ_tests "failed:" $number_of_fail_tests "duration: " $common_duration
