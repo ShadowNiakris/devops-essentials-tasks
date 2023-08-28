@@ -71,12 +71,13 @@ while read line; do
 #	common_duration=$(( $common_duration + ${BASH_REMATCH[1]} ))
 
 	common_duration=$(( $common_duration + $TestDuration ))
-#	echo $common_duration
+	echo $common_duration
 
-#	echo "success:" $number_of_succ_tests "failed:" $number_of_fail_tests "duration: " $common_duration
+	echo "success:" $number_of_succ_tests "failed:" $number_of_fail_tests "duration: " $common_duration
 
-#adds the object of the test into array in the json
-	json=$(echo "$json" | ./jq '. + {tests:(.tests + [{"testname":$ARGS.positional[0],"Duration":$ARGS.positional[1],"result":$ARGS.positional[2] }])}' --args "$TestName" "$TestDuration" "$TestStatus")
+	#adds the object of the test into array in the json
+	TestDuration=$TestDuration'ms'
+	json=$(echo "$json" | ./jq '. + {tests:(.tests + [{"name":$ARGS.positional[0],"status":$ARGS.positional[2]|test("true"),"duration":$ARGS.positional[1] }])}' --args "$TestName" "$TestDuration" "$TestStatus")
 
 done < <( head -n -2 ${1} | tail -n +3)
 
